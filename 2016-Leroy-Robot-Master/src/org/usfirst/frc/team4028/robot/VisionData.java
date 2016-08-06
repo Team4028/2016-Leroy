@@ -2,8 +2,6 @@ package org.usfirst.frc.team4028.robot;
 
 import java.util.Date;
 
-import org.usfirst.frc.team4028.robot.Constants.RobotMap;
-
 public class VisionData 
 {
 	public boolean IsValidData;

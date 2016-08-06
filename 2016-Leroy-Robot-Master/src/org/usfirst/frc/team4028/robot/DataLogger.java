@@ -12,14 +12,11 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 
  * This class contains implements logic to log data to a text file
- * 
  * 
  * Date			Rev		Author						Comments
  * -----------	------	-------------------------	---------------------------------- 
  * 26.Jul.2015	0.1		Tom Bruns					initial version
- *
  */
 public class DataLogger 
 {
