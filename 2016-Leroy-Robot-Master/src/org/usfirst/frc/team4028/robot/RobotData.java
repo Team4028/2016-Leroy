@@ -53,24 +53,6 @@ public class RobotData
 		PUMA_BACK_UP
 	}
 	
-	public enum Auton_Slider_Position
-	{
-		UNDEFINED,
-		CLICKS_24,
-		CLICKS_30,
-		CLICKS_34
-	}
-	
-	public enum Auton_Shooter_Wheel_RPM
-	{
-		UNDEFINED,
-		RPM_3500,
-		RPM_3250,
-		RPM_3000,
-		RPM_2750,
-		RPM_2500,
-	}
-	
 	public enum Auton_Drive_Time_In_Secs
 	{
 		UNDEFINED,
@@ -118,32 +100,11 @@ public class RobotData
 		FIVE
 	}
 	
-	public enum Auton_Shoot_Ball_State
-	{
-		UNDEFINED,
-		INFEED_1,
-		ADJUST_SLIDER_2,
-		CHANGE_PUMA_3,
-		START_SHOOTER_4,
-		SHOOT_5,
-		WAIT_FOR_BALL_TO_SHOOT_6,
-		STOP_SHOOTER_7,
-		AUTON_FINISHED_10
-	}
-	
 	public enum Camera_Selected
 	{
 		UNDEFINED,
 		SHOOTER_CAMERA,
 		INFEED_CAMERA
-	}
-	
-	public enum Slider_Zero_State
-	{
-		UNDEFINED,
-		DRIVE_TO_HOME,
-		ON_HOME,
-		TIMEOUT
 	}
 	
 	public enum Infeed_Tilt_Zero_State
@@ -154,61 +115,6 @@ public class RobotData
 		GO_TO_REQUESTED_POSITION,
 		TIMEOUT
 	}
-	
-	public enum Teleop_Elevator_State
-	{
-		UNDEFINED,
-		HONOR_INFEED_TRIGGERS,
-		ON_BALL_IN_POSITION_SWITCH,
-		IN_DELAY_PERIOD,
-		POST_DELAY_TRIGGER_RELEASED,
-		HONOR_INFEED_TRIGGERS_AFTER_SWITCH
-	}
-	
-	public enum Turret_Zero_State
-	{
-		UNDEFINED,
-		BEFORE_APPROACHING_SWITCH,
-		ON_APPROACHING_SWITCH,
-		BEFORE_HOME_SWITCH,
-		ON_HOME_SWITCH,
-		TIMEOUT
-	}
-	
-	public enum Cross_Defense_Auton_State
-	{
-		UNDEFINED,
-		DRIVE_AND_ZERO,
-		COARSE_TURRET_TO_TARGET,
-		FINE_TURRET_TO_TARGET,
-		SHOOT,
-		TIMEOUT
-	}
-	
-	public enum Auto_Aim_And_Shoot_State
-	{
-		UNDEFINED,
-		ZERO_AXES,
-		GROSS_TURRET_TO_TARGET,
-		COARSE_TURRET_TO_TARGET,
-		FINE_TURRET_TO_TARGET,
-		SHOOT,
-		TIMEOUT
-	}
-	
-	public enum Cross_Defense_Auto_Aim_And_Shoot_State
-	{
-		UNDEFINED,
-		ZERO_AXES_AND_DRIVE,
-		GROSS_TURRET_TO_TARGET,
-		COARSE_TURRET_TO_TARGET,
-		FINE_TURRET_TO_TARGET,
-		SHOOT,
-		TIMEOUT
-	}
-	
-	
-	
 	
 	// class constructor
 	public RobotData()
@@ -260,30 +166,16 @@ public class RobotData
 		public boolean IsInfeedAcquireBtnPressed;
 		public boolean IsInfeedReleaseBtnPressed;
 		public boolean IsCameraSwitchBtnPressed;
-		public boolean IsKickerReverseBtnPressed;
 		public boolean IsCupidLoadBtnPressed;
 		public boolean IsCupidShootBtnPressed;
 		public boolean IsCupidCameraBtnPressed;
-		
-		//public boolean IsShooterSpeedUpBtnPressed;
-		//public boolean IsShooterSpeedDownBtnPressed;
-		
-		public boolean IsSliderFwdBtnPressed;
-		public boolean IsSliderRevBtnPressed;
 		public boolean IsInfeedTiltStoreBtnPressed;
 		public boolean IsInfeedTiltDeployBtnPressed;
 		public boolean IsInfeedTiltFixedBtnPressed;
 		public boolean IsInfeedTiltAxisOnUpLimitSwitch;
-		public boolean IsPrintDataBtnPressed;
-		public boolean IsElevatorTimerOverrideBtnPressed;
-				
-		public double TurretCCWRawVelocityCmd;
-		public double TurretCWRawVelocityCmd;
 		
 		public double ArcadeDriveThrottleRawCmd;
 		public double ArcadeDriveTurnRawCmd;    	
-		public double LeftDriveEncoderCurrentCount;	
-		public double RightDriveEncoderCurrentCount;
 		
 		public double InfeedTiltEncoderCurrentCount;
 		public double InfeedTiltCurrentOutputVoltage;
@@ -292,26 +184,6 @@ public class RobotData
 		public double InfeedTiltDownCmd;
 		
 		public double WinchRawCmd;
-		
-		public double TurretEncoderCurrentPosition;
-
-		public double KickerRawVelocityCmd;
-
-		public double ShooterRawVelocityCmd;
-		public double ShooterClosedLoopError;
-    	public double ShooterEncoderCurrentCP100MS;
-		public double ShooterCurrentBusVoltage;
-		public double ShooterActualSpeed;
-		public double ShooterActualVToBusVRatio;
-		
-		public double SliderCurrentPosition;
-		public double SliderEncoderCurrentCount;
-		public double SliderRawVelocityCmd;
-		
-		public boolean IsTurretHomeLimitSwitchClosed;
-		public boolean IsTurretApproachingHomeLimitSwitchClosed;
-		
-		public boolean IsBallInPosition;
 		
 		public boolean IsValidData;
 		public double DistanceToTarget;
@@ -324,29 +196,12 @@ public class RobotData
 		
 		AutonMode AutonModeRequested;
 		Auton_Puma_Back_Position AutonPumaBackPositionRequested;
-		Auton_Slider_Position AutonSliderPositionRequested;
-		Auton_Shooter_Wheel_RPM AutonShooterWheelRPMRequested;
 		Auton_Drive_Time_In_Secs AutonDriveTimeInSecsRequested;
 		Auton_Drive_Throttle_Percent AutonDriveThrottlePercentRequested;
 		Auton_Cross_Defense_Type AutonCrossDefenseTypeRequested;
 		Auton_Cross_Defense_Position AutonCrossDefensePosition;
 		
 		Camera_Selected CameraSelected;
-		
-		public boolean NavxIsConnected;
-		public boolean NavxIsCalibrating;
-		
-		public float NavxYaw;
-		public float NavxPitch;
-		public float NavxRoll;
-		public float NavxCompassHeading;
-		public float NavxFusedHeading;
-		public double NavxTotalYaw;
-		public double NavxYawRateDPS;
-		public float NavxAccelX;
-		public float NavxAccelY;
-		public boolean NavxIsMoving;
-		public boolean NavxIsRotating;
 		
 		// build a TSV for the header
 		public String BuildTSVHeader()
@@ -362,46 +217,21 @@ public class RobotData
 			sb.append("InputData:IsInfeedAcquireBtnPressed" + "\t");
 			sb.append("InputData:IsInfeedReleaseBtnPressed" + "\t");
 			sb.append("InputData:IsCameraSwitchBtnPressed" + "\t");
-			sb.append("InputData:IsKickerReverseBtnPressed" + "\t");
 			sb.append("InputData:IsCupidLoadBtnPressed" + "\t");
 			sb.append("InputData:IsCupidShootBtnPressed" + "\t");
 			sb.append("InputData:IsCupidCameraBtnPressed" + "\t");
-			//sb.append("InputData:IsShooterSpeedUpBtnPressed" + "\t");
-			//sb.append("InputData:IsShooterSpeedDownBtnPressed" + "\t");
-			sb.append("InputData:IsKickerBtnPressed" + "\t");
-			sb.append("InputData:IsShooterBtnPressed" + "\t");
-			sb.append("InputData:IsSliderFwdBtnPressed" +"\t");
-			sb.append("InputData:IsSliderRevBtnPressed" +"\t");
 			sb.append("InputData:IsInfeedTiltStoreBtnPressed" + "\t");
 			sb.append("InputData:IsInfeedTiltDeployBtnPressed" + "\t");
 			sb.append("InputData:IsInfeedTiltFixedBtnPressed" + "\t");
-			sb.append("InputData:IsPrintDataBtnPressed" + "\t");
-			sb.append("InputData:IsElevatorTimerOverrideBtnPressed" + "\t");
-			sb.append("InputData:TurretCCWRawVelocityCmd" + "\t");
-			sb.append("InputData:TurretCWRawVelocityCmd" + "\t");
 			sb.append("InputData:ArcadeDriveThrottleRawCmd" + "\t");
 			sb.append("InputData:ArcadeDriveTurnRawCmd" + "\t");
 			sb.append("InputData:InfeedRawTiltCmd" + "\t");
 			sb.append("InputData:InfeedTiltUpCmd" + "\t");
 			sb.append("InputData:InfeedTiltDownCmd" + "\t");
 			sb.append("InputData:WinchRawCmd" + "\t");
-			sb.append("InputData:SliderRawVelocityCmd" +"\t");
-			sb.append("InputData:SliderCurrentPosition" +"\t");
-			sb.append("InputData:LeftDriveEncoderCurrentCount" + "\t");
-			sb.append("InputData:RightDriveEncoderCurrentCount" + "\t");
 			sb.append("InputData:InfeedTiltEncoderCurrentCount" + "\t");
-			sb.append("InputData:TurretEncoderCurrentCount" + "\t");
-			sb.append("InputData:SliderEncoderCurrentCount" + "\t");
 			sb.append("InputData:IsInfeedTiltAxisOnUpLimitSwitch" + "\t");
 			sb.append("InputData:InfeedTiltCurrentOutputVoltage" + "\t");
-			sb.append("InputData:ShooterEncoderCurrentCP100MS" + "\t");
-			sb.append("InputData:ShooterClosedLoopError" + "\t");
-			sb.append("InputData:ShooterCurrentBusVoltage" + "\t");  
-			sb.append("InputData:ShooterActualSpeed" + "\t");
-			sb.append("InputData:ShooterActualVToBusVRatio" + "\t");
-			sb.append("InputData:IsTurretHomeLimitSwitchClosed" + "\t");
-			sb.append("InputData:IsTurretApproachingHomeLimitSwitchClosed" + "\t");
-			sb.append("InputData:IsBallInPosition" + "\t");
 			sb.append("InputData:IsValidData" + "\t");
 			sb.append("InputData:DistanceToTarget" + "\t");
 			sb.append("InputData:EffectiveTargetWidth" + "\t");
@@ -411,27 +241,11 @@ public class RobotData
 			sb.append("InputData:LastVisionDataRecievedDT" + "\t");
 			sb.append("InputData:AutonModeRequested" + "\t");
 			sb.append("InputData:AutonPumaBackPositionRequested" + "\t");
-			sb.append("InputData:AutonSliderPositionRequested" + "\t");
-			sb.append("InputData:AutonShooterWheelRPMRequested" + "\t");
 			sb.append("InputData:AutonDriveTimeInSecsRequested" + "\t");
 			sb.append("InputData:AutonDriveThrottlePercentRequested" + "\t");
 			sb.append("InputData:AutonCrossDefenseTypeRequested" + "\t");
 			sb.append("InputData:AutonCrossDefensePosition" + "\t");
 			sb.append("InputData:CameraSelected" + "\t");
-			sb.append("InputData:NavxIsConnected" + "\t");
-			sb.append("InputData:NavxIsCalibrated" + "\t");
-			sb.append("InputData:NavxYaw" + "\t");
-			sb.append("InputData:NavxPitch" + "\t");
-			sb.append("InputData:NavxRoll" + "\t");
-			sb.append("InputData:NavxCompassHeading" + "\t");
-			sb.append("InputData:NavxFusedHeading" + "\t");
-			sb.append("InputData:NavxTotalYaw" + "\t");
-			sb.append("InputData:NavxYawRateDPS" + "\t");
-			sb.append("InputData:NavxAccelX" + "\t");
-			sb.append("InputData:NavxAccelY" + "\t");
-			sb.append("InputData:NavxIsMoving" + "\t");
-			sb.append("InputData:NavxIsRotating");
-
 					
 			return sb.toString();
 		}

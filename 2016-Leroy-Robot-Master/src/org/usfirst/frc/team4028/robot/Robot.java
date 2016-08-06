@@ -24,18 +24,12 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.usfirst.frc.team4028.robot.Constants.RobotMap;
-import org.usfirst.frc.team4028.robot.RobotData.Auto_Aim_And_Shoot_State;
 import org.usfirst.frc.team4028.robot.RobotData.AutonMode;
 import org.usfirst.frc.team4028.robot.RobotData.Auton_Drive_Throttle_Percent;
-import org.usfirst.frc.team4028.robot.RobotData.Auton_Shoot_Ball_State;
-import org.usfirst.frc.team4028.robot.RobotData.Cross_Defense_Auto_Aim_And_Shoot_State;
 import org.usfirst.frc.team4028.robot.RobotData.Cross_Defense_Auton_State;
 import org.usfirst.frc.team4028.robot.RobotData.Infeed_Tilt_Zero_State;
 import org.usfirst.frc.team4028.robot.RobotData.InputData;
 import org.usfirst.frc.team4028.robot.RobotData.OutputData;
-import org.usfirst.frc.team4028.robot.RobotData.Slider_Zero_State;
-import org.usfirst.frc.team4028.robot.RobotData.Teleop_Elevator_State;
-import org.usfirst.frc.team4028.robot.RobotData.Turret_Zero_State;
 import org.usfirst.frc.team4028.robot.RobotData.WorkingData;
 
 import edu.wpi.first.wpilibj.CANTalon;
@@ -65,29 +59,8 @@ import edu.wpi.first.wpilibj.vision.USBCamera;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.I2C;
 
-import com.kauailabs.navx.frc.AHRS;
-
 import com.ni.vision.NIVision;
 import com.ni.vision.NIVision.Image;
-
-/**
- * Date			Rev		Author						Comments
- * -----------	------	-------------------------	----------------------------------
- * 18.Feb.2-16 	0.81	Sebastian Rodriguez			Updated controller to run infeed and drive off of one motor, added all shooter motors
- * 15.Feb.2016	0.8		Sebastian Rodriguez			Added more untested auton base code, refined pid control for turret
- * 8.Feb.2016	0.7		Sebastian Rodriguez			PID control for the turret, untested auton mode
- * 6.Feb.2016	0.6		Sebastian Rodriguez			Added Infeed code
- * 4.Feb.2016	0.5		Sebastian Rodriguez			Added Turret and turret encoder
- * 28.Jan.2016	0.4		Sebastian Rodriguez			Added untested navx code
- * 23.Jan.2016	0.3		Sebastian Rodriguez			Changed to 6 wheel drive train
- * 18.Jan.2016	0.21	Sebastian Rodriguez			Debugging to allow for Solenoid functionality
- * 16.Jan.2016 	0.2		Sebastian Rodriguez			Added Untested Solenoid functionality
- * 													Setup two additional Talons and two Victors
- * 15.Jan.2016	0.1		Sebastian Rodriguez			Initial Version
- * 													-Basic Robot Config
- * 													-Added Arcade Drive functionality
- *
- */
 
 public class Robot extends IterativeRobot
 {
@@ -106,21 +79,11 @@ public class Robot extends IterativeRobot
 	private CANTalon _rightDriveMasterMtr;
 	private CANTalon _rightDriveSlaveMtr;
 	private CANTalon _rightDriveSlave2Mtr;
-	private CANTalon _turretMtr;
-	private CANTalon _shooterMasterMtr;
-	private CANTalon _shooterSlaveMtr;
-	private CANTalon _sliderMtr;
 	private CANTalon _infeedTiltMtr;
 	
 	// CIM DC Motors on Victor SP Speed Controllers (via PWM Ports)
 	private VictorSP _infeedAcqMtr;
-	private VictorSP _kickerMtr;
 	private VictorSP _winchMtr;
-	
-	// Limit switches for turret
-	private DigitalInput _turretHomeLimitSwitch;
-	private DigitalInput _turretApproachingHomeLimitSwitch;
-	private DigitalInput _isBallInPositionLimitSwitch;
 	
 	// Arcade Drive with four drive motors
 	private RobotDrive _robotDrive;
@@ -129,7 +92,6 @@ public class Robot extends IterativeRobot
 	private DoubleSolenoid _pumaFrontSolenoid;
 	private DoubleSolenoid _pumaBackSolenoid;
 	private DoubleSolenoid _shifterSolenoid;
-	private DoubleSolenoid _perimeterExpansionSolenoid;
 	
 	// Camera
 	DynamicCameraServer server;
@@ -137,9 +99,6 @@ public class Robot extends IterativeRobot
 	
 	// Vision Server Client
 	private VisionClient _visionClient;
-	
-	// navX
-	private AHRS _navXSensor;
 	
 	// Servo
 	private Servo _cupidServo;
@@ -154,12 +113,6 @@ public class Robot extends IterativeRobot
 	private Long lastCycleTime;
 	private Thread _pollingThread;
 	
-	// ==================
-	// PID Controller
-	// ==================
-	//private PIDController _turretControl;
-	//private Encoder _turretEncoder;
-	
 	// ===========================================================
 	//   Define class level working variables 
 	// ===========================================================
@@ -173,41 +126,22 @@ public class Robot extends IterativeRobot
 	
 	// Smart Dashboard chooser
 	SendableChooser autonModeChooser;
-	SendableChooser autonPumaBackPositionChooser;
-	SendableChooser autonSliderPositionChooser;
-	SendableChooser autonShooterWheelRPMChooser;
 	SendableChooser autonDriveTimeChooser;
 	SendableChooser autonDriveThrottleChooser;
 	SendableChooser autonCrossDefenseTypeChooser;
 	SendableChooser autonCrossDefensePositionChooser;
 	
-	double _sliderAutonPosition = 0.0;
-	double _turretAutonPosition = 0.0;
-	boolean _isTurretAxisZeroedYet = false;
-	boolean _isInfeedTiltAxisZeroedYet = false;
-	boolean _isSliderAxisZeroedYet = false;
-	int _autonShooterWheelTargetRPM = 0;
 	double _autonTargetDriveTimeMSecs = 0;
 	double _autonTargetDriveThrottlePercent = 0;
-	boolean  _isAutonAutoShooterEnabled = false;
+	
+	boolean _isInfeedTiltAxisZeroedYet = false;
 	
 	boolean _isInfeedPeriodZeroMode = false;
 	boolean _isInfeedTiltAxisZeroTimedOut = false;
 	
-	boolean _isSliderAxisZeroTimedOut = false;
-	
-	Slider_Zero_State _sliderZeroState;
-	long _sliderZeroStartTime;
-	Infeed_Tilt_Zero_State _infeedTiltZeroState;
-	long _infeedTiltZeroStartTime;
-	Turret_Zero_State _turretZeroState;
-	long _turretZeroStartTime;
 	Cross_Defense_Auton_State _crossDefenseAutonState;
 	long _crossDefenseAutonStartTime;
-	Auto_Aim_And_Shoot_State _autoAimAndShootState;
-	Cross_Defense_Auto_Aim_And_Shoot_State _crossDefenseAutoAimAndShootState;
 
-	
     /*****************************************************************************************************
      * This function is run when the robot is first started up.
 	 * This is where we initialize the robot hardware configuration.
@@ -228,7 +162,6 @@ public class Robot extends IterativeRobot
     	_leftDriveMasterMtr = new CANTalon(RobotMap.CAN_ADDR_LEFT_DRIVE_MASTER_TALON);
     	_leftDriveMasterMtr.changeControlMode(CANTalon.TalonControlMode.PercentVbus);	// open loop throttle
     	_leftDriveMasterMtr.enableBrakeMode(false);							// default to brake mode DISABLED
-    	//_leftDriveMasterMtr.setFeedbackDevice(FeedbackDevice.QuadEncoder);	// set encoder to be feedback device
     	_leftDriveMasterMtr.reverseSensor(false);  							// do not invert encoder feedback
     	_leftDriveMasterMtr.enableLimitSwitch(false, false);
     	//_leftDriveMasterMtr.reverseOutput(true);
@@ -253,7 +186,6 @@ public class Robot extends IterativeRobot
     	_rightDriveMasterMtr = new CANTalon(RobotMap.CAN_ADDR_RIGHT_DRIVE_MASTER_TALON);
     	_rightDriveMasterMtr.changeControlMode(CANTalon.TalonControlMode.PercentVbus);	// open loop throttle.
     	_rightDriveMasterMtr.enableBrakeMode(false);						// default to brake mode DISABLED
-    	//_rightDriveMasterMtr.setFeedbackDevice(FeedbackDevice.QuadEncoder);	// set encoder to be feedback device
     	_rightDriveMasterMtr.reverseSensor(true);  							// invert encoder feedback
     	_rightDriveMasterMtr.enableLimitSwitch(false, false);
     	//_rightDriveMasterMtr.reverseOutput(true);
@@ -295,70 +227,6 @@ public class Robot extends IterativeRobot
     	_winchMtr = new VictorSP(RobotMap.SCALING_MTR_PWM_PORT);
     	
     	// ===================
-    	// Turret
-    	// ===================
-    	_turretMtr = new CANTalon(RobotMap.CAN_ADDR_TURRET_TALON);
-    	_turretMtr.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
-    	_turretMtr.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
-    	_turretMtr.reverseSensor(false);
-    	_turretMtr.enableBrakeMode(true);
-    	_turretMtr.enableLimitSwitch(false, false);
-    	_turretMtr.configNominalOutputVoltage(+0.0f, -0.0f);
-    	_turretMtr.configPeakOutputVoltage(+5.0f, -5.0f);
-    	
-    	// ===================
-    	// Shooter
-    	// ===================
-    	_shooterMasterMtr = new CANTalon(RobotMap.CAN_ADDR_MASTER_SHOOTER_TALON);
-    	_shooterMasterMtr.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	_shooterMasterMtr.reverseSensor(true);
-    	_shooterMasterMtr.enableBrakeMode(false);
-    	_shooterMasterMtr.configNominalOutputVoltage(+0.0f, -0.0f);
-    	_shooterMasterMtr.configPeakOutputVoltage(+12.0f, 0.0f);
-    	_shooterMasterMtr.changeControlMode(CANTalon.TalonControlMode.Speed);
-    	//_shooterMasterMtr.changeControlMode(CANTalon.TalonControlMode.PercentVbus);  // 
-    	_shooterMasterMtr.configEncoderCodesPerRev(RobotMap.SHOOTER_ENCODER_COUNTS_PER_REV);	// try to enable Unit Scaling
-    	_shooterMasterMtr.enableLimitSwitch(false, false);
-    	
-    	// setup shooter PID Loop
-    	// shooterMaxVelociytInNativeUnitsPer100mSec = CalcShooterVelociytInNativeUnitsPer100mSec(RobotMap.SHOOTER_MAX_MOTOR_RPM);
-    	//double shooterFeedFwdGain = CalcShooterFeedFwdGain(shooterMaxVelociytInNativeUnitsPer100mSec);
-    	_shooterMasterMtr.setPID(RobotMap.SHOOTER_KP, RobotMap.SHOOTER_KI, RobotMap.SHOOTER_KD, RobotMap.SHOOTER_KF, RobotMap.SHOOTER_IZONE, RobotMap.SHOOTER_RAMPRATE, RobotMap.SHOOTER_PROFILE);
-    	_shooterMasterMtr.setProfile(RobotMap.SHOOTER_PROFILE);
-    	
-    	_shooterSlaveMtr = new CANTalon(RobotMap.CAN_ADDR_SLAVE_SHOOTER_TALON);
-    	_shooterSlaveMtr.changeControlMode(CANTalon.TalonControlMode.Follower);
-    	_shooterSlaveMtr.set(RobotMap.CAN_ADDR_MASTER_SHOOTER_TALON);
-    	_shooterSlaveMtr.enableBrakeMode(false);
-    	_shooterSlaveMtr.enableLimitSwitch(false, false);
-    	
-    	// ===================
-    	// Kicker
-    	// ===================
-    	_kickerMtr = new VictorSP(RobotMap.SHOOTER_KICKER_PWM_PORT);
-    	
-    	// ===================
-    	// Slider
-    	// ===================
-    	_sliderMtr = new CANTalon(RobotMap.CAN_ADDR_SHOOTER_SLIDER_TALON);
-    	_sliderMtr.changeControlMode(CANTalon.TalonControlMode.PercentVbus);			// default to %VBus on startup, chgs to Position in Axis Zero Function
-    	_sliderMtr.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	_sliderMtr.enableLimitSwitch(false, true);
-    	_sliderMtr.ConfigRevLimitSwitchNormallyOpen(false);
-    	_sliderMtr.reverseSensor(true);
-    	_sliderMtr.enableBrakeMode(true);
-    	_sliderMtr.configNominalOutputVoltage(+0.0f, -0.0f);
-    	_sliderMtr.configPeakOutputVoltage(+12.0f, -12.0f);
-    	_sliderMtr.configEncoderCodesPerRev(RobotMap.SLIDER_ENCODER_COUNTS_PER_REV);	// try to enable Unit Scaling
-    	    	
-    	// ===================
-    	// Limit Switches
-    	// ===================
-    	_turretHomeLimitSwitch = new DigitalInput(RobotMap.TURRET_HOME_LIMIT_SWITCH_DIO_PORT);
-    	_turretApproachingHomeLimitSwitch = new DigitalInput(RobotMap.TURRET_APPROACHING_HOME_LIMIT_SWITCH_DIO_PORT);
-    	_isBallInPositionLimitSwitch = new DigitalInput(RobotMap.IS_BALL_IN_POSITION_LIMIT_SWITCH);
-    	
-    	// ===================
     	// Gamepads
     	// ===================
     	_driverGamepad = new Joystick(RobotMap.DRIVER_GAMEPAD_USB_PORT);				// std Logitech F310 Gamepad  
@@ -376,29 +244,11 @@ public class Robot extends IterativeRobot
     	_pumaFrontSolenoid = new DoubleSolenoid(RobotMap.CAN_ADDR_PCM, RobotMap.PCM_PORT_PUMA_FRONT_SOLENOID_EXTEND, RobotMap.PCM_PORT_PUMA_FRONT_SOLENOID_RETRACT);
     	_pumaBackSolenoid = new DoubleSolenoid(RobotMap.CAN_ADDR_PCM, RobotMap.PCM_PORT_PUMA_BACK_SOLENOID_EXTEND, RobotMap.PCM_PORT_PUMA_BACK_SOLENOID_RETRACT);
     	_shifterSolenoid = new DoubleSolenoid(RobotMap.CAN_ADDR_PCM, RobotMap.PCM_PORT_SHIFTER_SOLENOID_EXTEND, RobotMap.PCM_PORT_SHIFTER_SOLENOID_RETRACT);
-    	_perimeterExpansionSolenoid = new DoubleSolenoid(RobotMap.CAN_ADDR_PCM, RobotMap.PCM_PORT_PERIMETER_EXPANSION_EXTEND, RobotMap.PCM_PORT_PERIMETER_EXPANSION_RETRACT);
-    	
-    	//===================
-    	// Default all Absolute Position Axes to NOT ZEROED
-    	//===================
-    	_isTurretAxisZeroedYet = false;
-    	_isInfeedTiltAxisZeroedYet = false;
-    	_isSliderAxisZeroedYet = false;
     	
     	// ==================
     	// Servo
     	// ==================
     	_cupidServo = new Servo(RobotMap.CUPID_SERVO_PWM_PORT);
-    	
-    	//===================
-    	// PIDController
-    	//===================
-    	// Test code for PID loop that runs on the Roborio, haven't figured out how to get PIDSourceType to provide an input values, not sure if it will be necessary though since we can run PID loops on the talons
-    	/*
-    	_turretEncoder = new Encoder(0,0,1);
-    	_turretEncoder.setPIDSourceType(PIDSourceType.kDisplacement);
-    	_turretControl= new PIDController(1.0, 0.0, 0.0, _turretEncoder, _turret);
-    	*/
     	
     	//===================
     	// Cameras
@@ -414,32 +264,11 @@ public class Robot extends IterativeRobot
         //   http://wpilib.screenstepslive.com/s/3120/m/7932/l/81109-choosing-an-autonomous-program-from-smartdashboard
         //===================
         autonModeChooser = new SendableChooser();
-        autonModeChooser.addObject("Do Nothing", RobotData.AutonMode.DO_NOTHING);
+        autonModeChooser.addDefault("Do Nothing", RobotData.AutonMode.DO_NOTHING);
         autonModeChooser.addObject("Zero All Axis", RobotData.AutonMode.ZERO_ALL_AXIS);
-        autonModeChooser.addDefault("Shoot Ball", RobotData.AutonMode.SHOOT_BALL);
         autonModeChooser.addObject("Drive Fwd", RobotData.AutonMode.DRIVE_FWD);
         autonModeChooser.addObject("Cross Defense", RobotData.AutonMode.CROSS_DEFENSE);
-        autonModeChooser.addObject("Aim & Shoot", RobotData.AutonMode.AIM_AND_SHOOT);
         SmartDashboard.putData("Auton mode chooser", autonModeChooser);
-        
-    	autonPumaBackPositionChooser = new SendableChooser();
-    	autonPumaBackPositionChooser.addDefault("Puma Down", RobotData.Auton_Puma_Back_Position.PUMA_BACK_DOWN);
-    	autonPumaBackPositionChooser.addObject("Puma Up", RobotData.Auton_Puma_Back_Position.PUMA_BACK_UP);
-        SmartDashboard.putData("Auton Puma Back Position", autonPumaBackPositionChooser);
-        
-    	autonSliderPositionChooser = new SendableChooser();
-    	autonSliderPositionChooser.addObject("24 Clicks", RobotData.Auton_Slider_Position.CLICKS_24);
-    	autonSliderPositionChooser.addObject("30 Clicks", RobotData.Auton_Slider_Position.CLICKS_30);
-    	autonSliderPositionChooser.addDefault("34 Clicks", RobotData.Auton_Slider_Position.CLICKS_34);
-        SmartDashboard.putData("Auton Slider Position", autonSliderPositionChooser);
-        
-        autonShooterWheelRPMChooser = new SendableChooser();
-        autonShooterWheelRPMChooser.addDefault("3500 RPM", RobotData.Auton_Shooter_Wheel_RPM.RPM_3500);
-        autonShooterWheelRPMChooser.addObject("3250 RPM", RobotData.Auton_Shooter_Wheel_RPM.RPM_3250);
-        autonShooterWheelRPMChooser.addObject("3000 RPM", RobotData.Auton_Shooter_Wheel_RPM.RPM_3000);
-        autonShooterWheelRPMChooser.addObject("2750 RPM", RobotData.Auton_Shooter_Wheel_RPM.RPM_2750);
-        autonShooterWheelRPMChooser.addObject("2500 RPM", RobotData.Auton_Shooter_Wheel_RPM.RPM_2500);
-        SmartDashboard.putData("Auton Shooter Wheel Speed", autonShooterWheelRPMChooser);
         
         autonDriveTimeChooser = new SendableChooser();
         autonDriveTimeChooser.addDefault("1 sec", RobotData.Auton_Drive_Time_In_Secs.SECS_1);
@@ -503,7 +332,6 @@ public class Robot extends IterativeRobot
 			
 			// write the build date & time to the operator's console log window
 			DriverStation.reportError("Build Date and Time: " + newDateString + "|", false);
-			
 		} 
     	catch (URISyntaxException e) 
     	{
@@ -514,28 +342,7 @@ public class Robot extends IterativeRobot
     	{	
     		DriverStation.reportError("General Error trying to determine current JAR file", true);
 			//e.printStackTrace();
-		}
-    	
-    	//===================
-    	// try to communicate to the naxX
-    	//===================
-    	try 
-    	{
-            /* Communicate w/ navX MXP via one of the following ports                           */
-            /*   				I2C.Port.kMXP, 												   	*/
-            /* 					SerialPort.Port.kMXP, 										   	*/
-            /* 					SerialPort.Port.kUSB										   	*/
-            /* 					SPI.Port.kMXP   			plugged into mxp port on RoboRio	*/			
-            /* See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details.  */
-            //_navXSensor = new AHRS(SPI.Port.kMXP);
-            _navXSensor = new AHRS(SerialPort.Port.kMXP);
-            
-            DriverStation.reportError("..navX sensor connected" + " |" , false);
-        } 
-    	catch (RuntimeException ex ) 
-    	{
-            DriverStation.reportError("Error connecting to navX Sensor: " + ex.getMessage() + " |", true);
-        }
+    	}
     	    	
     	//===================
     	// Vision Server Client
@@ -553,15 +360,6 @@ public class Robot extends IterativeRobot
     // ========================================================================
     public void autonomousInit() 
     {
-    	/*
-    	try {
-			server.wait();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	*/
-    	
     	// create a new instance of the RobotData object
     	_robotLiveData = new RobotData();
     	
@@ -580,9 +378,6 @@ public class Robot extends IterativeRobot
     	
     	// get user input values from the Smart Dashboard
     	inputDataValues.AutonModeRequested = (RobotData.AutonMode) autonModeChooser.getSelected();
-    	inputDataValues.AutonPumaBackPositionRequested = (RobotData.Auton_Puma_Back_Position) autonPumaBackPositionChooser.getSelected();
-    	inputDataValues.AutonSliderPositionRequested = (RobotData.Auton_Slider_Position) autonSliderPositionChooser.getSelected();
-    	inputDataValues.AutonShooterWheelRPMRequested = (RobotData.Auton_Shooter_Wheel_RPM) autonShooterWheelRPMChooser.getSelected();
     	inputDataValues.AutonDriveTimeInSecsRequested = (RobotData.Auton_Drive_Time_In_Secs) autonDriveTimeChooser.getSelected();
     	inputDataValues.AutonDriveThrottlePercentRequested = (RobotData.Auton_Drive_Throttle_Percent) autonDriveThrottleChooser.getSelected();
     	inputDataValues.AutonCrossDefenseTypeRequested = (RobotData.Auton_Cross_Defense_Type) autonCrossDefenseTypeChooser.getSelected();
@@ -599,10 +394,6 @@ public class Robot extends IterativeRobot
     			
     		case ZERO_ALL_AXIS:
     			// in this auton mode we just sit still and zero all the axis to save time in telop
-    			if (!_isTurretAxisZeroedYet)
-    	    	{
-    	    		ZeroTurretAxis(_robotLiveData);
-    	    	}
     	    	
     	    	if (!_isInfeedTiltAxisZeroedYet)
     	    	{
@@ -610,65 +401,8 @@ public class Robot extends IterativeRobot
     	    		_infeedTiltZeroState = Infeed_Tilt_Zero_State.TILT_TO_HOME;
     	    		ZeroInfeedTiltAxisReEntrant(_robotLiveData);
     	    	}
-    	    	
-    	    	if (!_isSliderAxisZeroedYet)
-    	    	{
-    	    		_sliderZeroStartTime = System.currentTimeMillis();
-    	    		_sliderZeroState = Slider_Zero_State.DRIVE_TO_HOME;
-    	    		//ZeroSliderAxisReEntrant(_robotLiveData, RobotMap.SLIDER_DEFAULT_TARGET_POSITION);
-    	    		ZeroSliderAxis(_robotLiveData, RobotMap.SLIDER_DEFAULT_TARGET_POSITION);
-    	    	}
     			break;
     			
-    		case SHOOT_BALL:
-    			// in this auton mode we are positioned in the front left spybot posiiton and we just shot the ball into the side goal
-    	    	DriverStation.reportError("PumaAutonPositionRequested: [" + inputDataValues.AutonPumaBackPositionRequested.toString() + "]", false);
-    	    	DriverStation.reportError("SliderAutonPositionRequested: [" + inputDataValues.AutonSliderPositionRequested.toString() + "]", false);
-    	    	DriverStation.reportError("ShooterWheelRPMRequested: [" + inputDataValues.AutonShooterWheelRPMRequested.toString() + "]", false);
-    	    	
-    	    	// position the slider
-    	    	switch(inputDataValues.AutonSliderPositionRequested)
-    	    	{
-    	    	    case CLICKS_24:
-    	    	     	 _sliderAutonPosition = 24;
-    	    	     	 break;
-    	    	     
-    	    	    case CLICKS_30:
-    	    	    	 _sliderAutonPosition = 30;
-    	    	    	 break;
-    	    	    	 
-    	    	    case CLICKS_34:
-    	    	    	 _sliderAutonPosition = 34;
-    	    	    	 break;
-    	    	    	
-    				default:
-    					_sliderAutonPosition = RobotMap.SLIDER_DEFAULT_TARGET_POSITION;
-    					break;
-    	    	}
-    	    
-    	    	// set the desired target shooter speed
-    	    	switch(inputDataValues.AutonShooterWheelRPMRequested)
-    	    	{
-    	    		case RPM_3500:
-    	    			_autonShooterWheelTargetRPM = 3500;
-    	    			break;
-    	    			
-    	    		case RPM_3250:
-    	    			_autonShooterWheelTargetRPM = 3250;
-    	    			break;
-    	    			
-    	    		case RPM_3000:
-    	    			_autonShooterWheelTargetRPM = 3000;
-    	    			break;
-    	    			
-    	    		case RPM_2750:
-    	    			_autonShooterWheelTargetRPM = 2750;
-    	    			break;
-    	    			
-    	    		case RPM_2500:
-    	    			_autonShooterWheelTargetRPM = 2500;
-    	    			break;
-    	    	}
     	    	
     	    	// zero the slider and send to the requested position
     	    	if (!_isSliderAxisZeroedYet)

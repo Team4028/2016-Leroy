@@ -456,5 +456,3 @@ public class DynamicCameraServer {
     }
   }
 }
-
-
