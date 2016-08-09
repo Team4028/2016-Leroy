@@ -108,7 +108,6 @@ public class RobotMap
 	public static final int DRIVER_GAMEPAD_PUMA_BOTH_TOGGLE_BTN = LogitechF310.GREEN_BUTTON_A;
 	public static final int DRIVER_GAMEPAD_INFEED_TILT_STORE_BTN = LogitechF310.BLUE_BUTTON_X;
 	public static final int DRIVER_GAMEPAD_INFEED_TILT_DEPLOY_BTN = LogitechF310.RED_BUTTON_B;
-	public static final int DRIVER_GAMEPAD_SHIFTER_BTN = LogitechF310.YELLOW_BUTTON_Y;
 	public static final int DRIVER_GAMEPAD_INFEED_TILT_UP_AXIS = LogitechF310.LEFT_TRIGGER;
 	public static final int DRIVER_GAMEPAD_INFEED_TILT_DOWN_AXIS = LogitechF310.RIGHT_TRIGGER;
 	public static final int DRIVER_GAMEPAD_CUPID_LOAD_BTN = LogitechF310.LEFT_BUMPER;

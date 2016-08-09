@@ -22,9 +22,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 * 	InputData		all real time data read from the robot (roboRio) 
 * 	WorkingData		values calculated from the input data
 * 	OutputData		values determined by code that will be pushed back to the robioRio to control motors & solenoids etc.
+* 
+* Date			Rev		Author						Comments
+* -----------	------	-------------------------	---------------------------------- 
+* 22.Aug.2015	0.2		Sebastian Rodriguez			Added new fields for Nav sensor
+* 02.Aug.2015	0.1		Tom Bruns					Initial Version
+*
 */
 public class RobotData 
 {
+	
 	// ==========================================================
 	// define the different auton modes (selected on the Smart Dashboard)
 	// ==========================================================
@@ -154,7 +161,6 @@ public class RobotData
 		public boolean IsPumaFrontToggleBtnPressed;
 		public boolean IsPumaBackToggleBtnPressed;
 		public boolean IsPumaBothToggleBtnPressed;
-		public boolean IsShifterBtnPressed;
 		public boolean IsInfeedAcquireBtnPressed;
 		public boolean IsInfeedReleaseBtnPressed;
 		public boolean IsCameraSwitchBtnPressed;
@@ -204,7 +210,6 @@ public class RobotData
 			sb.append("InputData:IsPumaBothToggleBtnPressed" + "\t");
 			sb.append("InputData:IsInfeedAcquireBtnPressed" + "\t");
 			sb.append("InputData:IsInfeedReleaseBtnPressed" + "\t");
-			sb.append("InputData:IsShifterBtnPressed" + "\t");
 			sb.append("InputData:IsCameraSwitchBtnPressed" + "\t");
 			sb.append("InputData:IsCupidLoadBtnPressed" + "\t");
 			sb.append("InputData:IsCupidShootBtnPressed" + "\t");
@@ -252,7 +257,6 @@ public class RobotData
 			sb.append(IsPumaBothToggleBtnPressed + "\t");
 			sb.append(IsInfeedAcquireBtnPressed + "\t");
 			sb.append(IsInfeedReleaseBtnPressed + "\t");
-			sb.append(IsShifterBtnPressed + "\t");
 			sb.append(IsCameraSwitchBtnPressed + "\t"); 
 			sb.append(IsCupidLoadBtnPressed + "\t");
 			sb.append(IsCupidShootBtnPressed + "\t");
@@ -294,24 +298,29 @@ public class RobotData
 		public boolean IsLoggingEnabled;
 		public String LogFilePathName;
 		public Date LoggingStartedDT;
+		
 		public Date LastScanDT;
+		
 		public boolean IsDriveSpeedScalingButtonPressedLastScan;
 		public double DriveSpeedScalingFactor;			// min = 0.0, max = 1.0, 1.0 = 100%, 
+		
 		public boolean IsPumaFrontToggleBtnPressedLastScan;
 		public boolean IsPumaBackToggleBtnPressedLastScan;
 		public boolean IsPumaBothToggleBtnPressedLastScan;
+		public boolean IsShifterToggleBtnPressedLastScan;
 		public boolean IsPrintDataBtnPressedLastScan;
 		public boolean IsInfeedTiltStoreBtnPressedLastScan;
 		public boolean IsInfeedTiltFixedBtnPressedLastScan;
 		public boolean IsInfeedAcquireBtnPressedLastScan;
-		public boolean IsShifterBtnPressedLastScan;
 		public boolean IsCameraSwitchBtnPressedLastScan;
 		public boolean IsCupidSwitchBtnPressedLastScan;
+		
     	public double InfeedTiltEncoderInitialCount;
     	public double InfeedTiltEncoderTotalDeltaCount;
     	public double InfeedTiltEncoderDegreesCount;
     	public double InfeedTiltTargetDegreesCount;
     	public double InfeedTiltTurnDegreesCmd;    	
+    	
     	public long AutonShooterStartTime;
     	public long AutonDriveFwdStartTime;
     	public long InfeedPauseOnBallInPositionSwitchStartTime;
@@ -323,21 +332,24 @@ public class RobotData
 			
 			sb.append("WorkingData:IsDriveSpeedScalingButtonPressedLastScan" + "\t");
 			sb.append("WorkingData:DriveSpeedScalingFactor" + "\t");
+			
 			sb.append("WorkingData:IsPumaFrontToggleBtnPressedLastScan" + "\t");
 			sb.append("WorkingData:IsPumaBackToggleBtnPressedLastScan" + "\t");
 			sb.append("WorkingData:IsPumaBothToggleBtnPressedLastScan" + "\t");
+			sb.append("WorkingData:IsShifterToggleBtnPressedLastScan" + "\t");
 			sb.append("WorkingData:IsPrintDataBtnPressedLastScan" + "\t");
 			sb.append("WorkingData:IsInfeedTiltStoreBtnPressedLastScan" + "\t");
 			sb.append("WorkingData:IsInfeedTiltFixedBtnPressedLastScan" + "\t");
 			sb.append("WorkingData:IsInfeedAcquireBtnPressedLastScan" + "\t");
-			sb.append("WorkingData:IsShifterBtnPressedLastScan" + "\t");
 			sb.append("WorkingData:IsCameraSwitchBtnPressedLastScan" + "\t");
 			sb.append("WorkingData:IsCupidSwitchBtnPressedLastScan" + "\t");
+			
 			sb.append("WorkingData:InfeedTiltEncoderInitialCount" + "\t");
 			sb.append("WorkingData:InfeedTiltEncoderTotalDeltaCount" + "\t");
 			sb.append("WorkingData:InfeedTiltEncoderDegreesCount" + "\t");
 			sb.append("WorkingData:InfeedTiltTargetDegreesCount" + "\t");
 			sb.append("WorkingData:InfeedTiltTurnDegreesCmd" + "\t");
+			
 			sb.append("WorkingData:AutonShooterStartTime" + "\t");
 			sb.append("WorkingData:AutonDriveFwdStartTime" + "\t");
 			sb.append("WorkingData:InfeedPauseOnBallInPositionSwitchStartTime");
@@ -352,21 +364,24 @@ public class RobotData
 			
 			sb.append(IsDriveSpeedScalingButtonPressedLastScan + "\t");
 			sb.append(DriveSpeedScalingFactor + "\t");
+			
 			sb.append(IsPumaFrontToggleBtnPressedLastScan + "\t");
 			sb.append(IsPumaBackToggleBtnPressedLastScan + "\t");
 			sb.append(IsPumaBothToggleBtnPressedLastScan + "\t");
+			sb.append(IsShifterToggleBtnPressedLastScan + "\t");
 			sb.append(IsPrintDataBtnPressedLastScan + "\t");
 			sb.append(IsInfeedTiltStoreBtnPressedLastScan + "\t");
 			sb.append(IsInfeedTiltFixedBtnPressedLastScan + "\t");
 			sb.append(IsInfeedAcquireBtnPressedLastScan + "\t");
-			sb.append(IsShifterBtnPressedLastScan + "\t");
 			sb.append(IsCameraSwitchBtnPressedLastScan + "\t");
 			sb.append(IsCupidSwitchBtnPressedLastScan + "\t");
+			
 			sb.append(InfeedTiltEncoderInitialCount + "\t");
 			sb.append(InfeedTiltEncoderTotalDeltaCount + "\t");
 			sb.append(InfeedTiltEncoderDegreesCount + "\t");
 			sb.append(InfeedTiltTargetDegreesCount + "\t");
 			sb.append(InfeedTiltTurnDegreesCmd + "\t");
+
 			sb.append(AutonShooterStartTime + "\t");
 			sb.append(AutonDriveFwdStartTime + "\t");
 			sb.append(InfeedPauseOnBallInPositionSwitchStartTime);
@@ -385,9 +400,10 @@ public class RobotData
 		public double InfeedTiltTargetPositionInRotationsCmd;
 		public double WinchVelocityCmd;
 		public double CupidServoPositionCmd;
+		
 		public Value PumaFrontSolenoidPosition;
 		public Value PumaBackSolenoidPosition;
-		public Value ShifterSolenoidPosition;
+
 		public String DriversStationMsg;
 		
 		// build a TSV for the header
@@ -404,8 +420,8 @@ public class RobotData
 			sb.append("OutputData:CupidServoPositionCmd" + "\t");
 			sb.append("OutputData:PumaFrontSolenloidPosition" + "\t");
 			sb.append("OutputData:PumaBackSolenoidPosition" + "\t");
-			sb.append("OutputData:ShifterSolenoidPosition" + "\t");
 			sb.append("OutputData:DriversStationMsg");
+			
 					
 			return sb.toString();
 		}
@@ -451,23 +467,8 @@ public class RobotData
 				PumaBackSolenoidPositionDesc = "UNKNOWN";
 			}
 			
-			String ShifterSolenoidPositionDesc ="";
-			if (PumaBackSolenoidPosition == RobotMap.SHIFTER_HIGH_GEAR_POSITION)
-			{
-				ShifterSolenoidPositionDesc = "SHIFTER_SOLENOID_OPEN";
-			}
-			else if (PumaBackSolenoidPosition == RobotMap.SHIFTER_LOW_GEAR_POSITION)
-			{
-				ShifterSolenoidPositionDesc = "SHIFTER_SOLENOID_CLOSED";
-			}
-			else
-			{
-				ShifterSolenoidPositionDesc = "UNKNOWN";
-			}
-			
 			sb.append(PumaFrontSolenoidPositionDesc + "\t");
 			sb.append(PumaBackSolenoidPositionDesc + "\t");
-			sb.append(ShifterSolenoidPositionDesc + "\t");
 			sb.append(DriversStationMsg);
 					
 			return sb.toString();
