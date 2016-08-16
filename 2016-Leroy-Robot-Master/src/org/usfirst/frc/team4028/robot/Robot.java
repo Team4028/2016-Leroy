@@ -829,9 +829,9 @@ public class Robot extends IterativeRobot
     	}
     	
     	outputDataValues.ArcadeDriveThrottleAdjCmd 
-    			= inputDataValues.ArcadeDriveThrottleRawCmd * workingDataValues.DriveSpeedScalingFactor;  	
+    			= inputDataValues.ArcadeDriveThrottleRawCmd * workingDataValues.DriveSpeedScalingFactor * -1.0;  	
     	outputDataValues.ArcadeDriveTurnAdjCmd 
-    			= inputDataValues.ArcadeDriveTurnRawCmd * workingDataValues.DriveSpeedScalingFactor * 0.6;
+    			= inputDataValues.ArcadeDriveTurnRawCmd * workingDataValues.DriveSpeedScalingFactor * -0.6;
 
     	// =====================================
     	// Step 2.2:  Infeed Tilt (Tilt the infeed up and down)
