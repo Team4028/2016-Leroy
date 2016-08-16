@@ -7,11 +7,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -37,29 +32,16 @@ import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDSource;
-import edu.wpi.first.wpilibj.PIDSourceType;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Utility;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.vision.USBCamera;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.I2C;
-
-import com.ni.vision.NIVision;
-import com.ni.vision.NIVision.Image;
 
 public class Robot extends IterativeRobot
 {
@@ -101,16 +83,6 @@ public class Robot extends IterativeRobot
 	
 	// Servo
 	private Servo _cupidServo;
-	
-	// Vision 
-	private Socket _visionServer;	
-	private DataInputStream _inFromServer;
-	private DataOutputStream _outToServer;
-	
-	private String visionData;
-	
-	private Long lastCycleTime;
-	private Thread _pollingThread;
 	
 	// ===========================================================
 	//   Define class level working variables 
@@ -369,6 +341,7 @@ public class Robot extends IterativeRobot
     	// Set desired initial (default) solenoid positions
     	outputDataValues.PumaFrontSolenoidPosition = RobotMap.PUMA_FRONT_SOLENOID_DOWN_POSITION;
     	outputDataValues.PumaBackSolenoidPosition = RobotMap.PUMA_BACK_SOLENOID_DOWN_POSITION;
+    	outputDataValues.ShifterSolenoidPosition = RobotMap.SHIFTER_LOW_GEAR_POSITION;
     	
     	// init some working variables
     	_isInfeedPeriodZeroMode = false;
@@ -488,6 +461,7 @@ public class Robot extends IterativeRobot
     			// puma up to cross defenses
     			outputDataValues.PumaFrontSolenoidPosition = RobotMap.PUMA_FRONT_SOLENOID_UP_POSITION;
     			outputDataValues.PumaBackSolenoidPosition = RobotMap.PUMA_BACK_SOLENOID_UP_POSITION;
+    			outputDataValues.ShifterSolenoidPosition = RobotMap.SHIFTER_LOW_GEAR_POSITION;
     			// low gear to cross defenses
     			
     			workingDataValues.AutonDriveFwdStartTime = new Date().getTime();
@@ -529,6 +503,7 @@ public class Robot extends IterativeRobot
     			// puma up to cross defenses
     			outputDataValues.PumaFrontSolenoidPosition = RobotMap.PUMA_FRONT_SOLENOID_UP_POSITION;
     			outputDataValues.PumaBackSolenoidPosition = RobotMap.PUMA_BACK_SOLENOID_UP_POSITION;
+    			outputDataValues.ShifterSolenoidPosition = RobotMap.SHIFTER_LOW_GEAR_POSITION;
     			
     			// perimeter expansion should be out the entire match
     			//outputDataValues.PerimeterSolenoidPosition = RobotMap.PERIMETER_EXPANSION_IN;
@@ -611,6 +586,7 @@ public class Robot extends IterativeRobot
         	// set solenoids
         	_pumaFrontSolenoid.set(outputDataValues.PumaFrontSolenoidPosition);
         	_pumaBackSolenoid.set(outputDataValues.PumaBackSolenoidPosition);
+        	_shifterSolenoid.set(outputDataValues.ShifterSolenoidPosition);
 		}
     	else if (inputDataValues.AutonModeRequested == RobotData.AutonMode.CROSS_DEFENSE)
     	{
@@ -620,6 +596,7 @@ public class Robot extends IterativeRobot
         	// set solenoids
         	_pumaFrontSolenoid.set(outputDataValues.PumaFrontSolenoidPosition);
         	_pumaBackSolenoid.set(outputDataValues.PumaBackSolenoidPosition);
+        	_shifterSolenoid.set(outputDataValues.ShifterSolenoidPosition);
     	}
     	
     	// ==============================
@@ -749,15 +726,17 @@ public class Robot extends IterativeRobot
     	// set our desired default state for the puma solenoids
     	outputDataValues.PumaFrontSolenoidPosition = RobotMap.PUMA_FRONT_SOLENOID_UP_POSITION;
     	outputDataValues.PumaBackSolenoidPosition = RobotMap.PUMA_BACK_SOLENOID_UP_POSITION;
+    	outputDataValues.ShifterSolenoidPosition = RobotMap.SHIFTER_LOW_GEAR_POSITION;
     	
     	// set initial state of "pressed last scan" working values to be false
     	workingDataValues.IsPumaFrontToggleBtnPressedLastScan = false;
     	workingDataValues.IsPumaBackToggleBtnPressedLastScan = false;
-    	workingDataValues.IsShifterToggleBtnPressedLastScan = false;
+    	workingDataValues.IsShifterBtnPressedLastScan = false;
     	
     	// send the initial states to the solenoids
     	_pumaFrontSolenoid.set(outputDataValues.PumaFrontSolenoidPosition);
     	_pumaBackSolenoid.set(outputDataValues.PumaBackSolenoidPosition);
+    	_shifterSolenoid.set(outputDataValues.ShifterSolenoidPosition);
     	
     	inputDataValues.IsInfeedAcquireBtnPressed = false;
     	inputDataValues.IsInfeedReleaseBtnPressed = false;
@@ -1078,9 +1057,23 @@ public class Robot extends IterativeRobot
     		}
     	}
     	
+    	if (!workingDataValues.IsShifterBtnPressedLastScan && inputDataValues.IsShifterBtnPressed)
+    	{
+    		if (outputDataValues.ShifterSolenoidPosition == RobotMap.SHIFTER_HIGH_GEAR_POSITION)
+    		{
+    			outputDataValues.ShifterSolenoidPosition = RobotMap.SHIFTER_LOW_GEAR_POSITION;
+    		}
+    		else
+    		{
+    			outputDataValues.ShifterSolenoidPosition = RobotMap.SHIFTER_HIGH_GEAR_POSITION;
+    		}
+    	}
+    		 
+    	
     	// set solenoids state
     	_pumaFrontSolenoid.set(outputDataValues.PumaFrontSolenoidPosition);
     	_pumaBackSolenoid.set(outputDataValues.PumaBackSolenoidPosition);
+    	_shifterSolenoid.set(outputDataValues.ShifterSolenoidPosition);
     	
     	// set motor commmands
     	_robotDrive.arcadeDrive((-1.0 * outputDataValues.ArcadeDriveThrottleAdjCmd), (-1.0 * outputDataValues.ArcadeDriveTurnAdjCmd), false);
@@ -1134,6 +1127,7 @@ public class Robot extends IterativeRobot
     	workingDataValues.IsPumaFrontToggleBtnPressedLastScan = inputDataValues.IsPumaFrontToggleBtnPressed;
     	workingDataValues.IsPumaBackToggleBtnPressedLastScan = inputDataValues.IsPumaBackToggleBtnPressed;
     	workingDataValues.IsPumaBothToggleBtnPressedLastScan = inputDataValues.IsPumaBothToggleBtnPressed;
+    	workingDataValues.IsShifterBtnPressedLastScan = inputDataValues.IsShifterBtnPressed;
     	workingDataValues.IsInfeedTiltStoreBtnPressedLastScan = inputDataValues.IsInfeedTiltStoreBtnPressed;
     	workingDataValues.IsInfeedTiltFixedBtnPressedLastScan = inputDataValues.IsInfeedTiltFixedBtnPressed;
     	workingDataValues.IsInfeedAcquireBtnPressedLastScan = inputDataValues.IsInfeedAcquireBtnPressed;
@@ -1338,6 +1332,7 @@ public class Robot extends IterativeRobot
     	inputDataValues.IsInfeedTiltDeployBtnPressed = _driverGamepad.getRawButton(RobotMap.DRIVER_GAMEPAD_INFEED_TILT_DEPLOY_BTN);
     	inputDataValues.IsCupidLoadBtnPressed = _driverGamepad.getRawButton(RobotMap.DRIVER_GAMEPAD_CUPID_LOAD_BTN);
     	inputDataValues.IsCupidShootBtnPressed = _driverGamepad.getRawButton(RobotMap.DRIVER_GAMEPAD_CUPID_SHOOT_BTN);
+    	inputDataValues.IsShifterBtnPressed = _driverGamepad.getRawButton(RobotMap.DRIVER_GAMEPAD_SHIFTER_BTN);
     	
     	inputDataValues.IsInfeedAcquireBtnPressed = _operatorGamepad.getRawButton(RobotMap.OPERATOR_GAMEPAD_INFEED_ACQUIRE_BTN);
     	inputDataValues.IsInfeedReleaseBtnPressed = _operatorGamepad.getRawButton(RobotMap.OPERATOR_GAMEPAD_INFEED_RELEASE_BTN);
@@ -1382,28 +1377,7 @@ public class Robot extends IterativeRobot
     	WorkingData workingDataValues = robotDataValues.WorkingDataValues;
     	OutputData outputDataValues = robotDataValues.OutputDataValues;
     	VisionData visionData = _visionClient.GetVisionData();
-    	    	
-		// Drive Motors
-		//SmartDashboard.putNumber("Drive.Btn:SpeedScaleFactor", workingDataValues.DriveSpeedScalingFactor);
-		
-		//SmartDashboard.putNumber("Drive.Left:JoyThrottleRawCmd", inputDataValues.ArcadeDriveThrottleRawCmd);
-		//SmartDashboard.putNumber("Drive.Right:JoyTurnRawCmd", inputDataValues.ArcadeDriveTurnRawCmd);
-				
-		//SmartDashboard.putNumber("Drive.Left:ArcadeDriveThrottleCmd", outputDataValues.ArcadeDriveThrottleAdjCmd);
-		//SmartDashboard.putNumber("Drive.Right:ArcadeDriveTurnCmd", outputDataValues.ArcadeDriveTurnAdjCmd);
-    	
-		// Infeed
-		//SmartDashboard.putNumber("Infeed.RawTiltCmd", inputDataValues.InfeedRawTiltCmd);
-		//SmartDashboard.putNumber("InfeedAcqMtrVelocityCmd", outputDataValues.InfeedAcqMtrVelocityCmd);
-		//SmartDashboard.putNumber("InfeedTiltMtrVelocityCmd", outputDataValues.InfeedTiltMtrVelocityCmd);
-		
-		// Puma Drive
-    	/*
-		SmartDashboard.putBoolean("IsInfeedAcquireBtnPressed", inputDataValues.IsInfeedAcquireBtnPressed);
-		SmartDashboard.putBoolean("IsInfeedReleaseBtnPressed", inputDataValues.IsInfeedReleaseBtnPressed);
-		SmartDashboard.putBoolean("IsPumaFrontToggleBtnPressed", inputDataValues.IsPumaFrontToggleBtnPressed);
-		SmartDashboard.putBoolean("IsPumaBackToggleBtnPressed", inputDataValues.IsPumaBackToggleBtnPressed);
-		*/
+
 		// Axis Home Routines
 		SmartDashboard.putBoolean("Is Infeed Zeroed", _isInfeedTiltAxisZeroedYet);
 		
