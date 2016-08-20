@@ -226,8 +226,7 @@ public class Robot extends IterativeRobot
     	//===================
         server = DynamicCameraServer.getInstance();
         server.setQuality(25);
-        _currentCameraName = RobotMap.SHOOTER_CAMERA_NAME;
-        server.startAutomaticCapture(_currentCameraName);
+        server.startAutomaticCapture("cam0");
     	
         //===================
         // Smart DashBoard User Input
@@ -944,40 +943,6 @@ public class Robot extends IterativeRobot
     	else if (inputDataValues.IsInfeedReleaseBtnPressed)
     	{
     		outputDataValues.InfeedAcqMtrVelocityCmd = 11.0;
-    	}
-    	
-    	
-    	// ===========================
-    	// Step 2.4: Camera
-    	// ===========================
-    	if (inputDataValues.IsCameraSwitchBtnPressed 
-    			&& !workingDataValues.IsCameraSwitchBtnPressedLastScan)
-    	{
-    		if (_currentCameraName == RobotMap.SHOOTER_CAMERA_NAME)
-			{
-    			_currentCameraName = RobotMap.INFEED_CAMERA_NAME;
-    			DriverStation.reportError("..Switching to Infeed Camera", false);
-			}
-    		else if (_currentCameraName == RobotMap.INFEED_CAMERA_NAME)
-    		{
-    			_currentCameraName = RobotMap.SHOOTER_CAMERA_NAME;
-    			DriverStation.reportError("..Switching to Shooter Camera", false);
-    		}
-    		else
-    		{
-    			_currentCameraName = RobotMap.SHOOTER_CAMERA_NAME;
-    			DriverStation.reportError("..Switching to Shooter Camera", false);
-    		}
-    		
-    		server.switchAutomaticCapture(_currentCameraName);
-    	}
-    	else if (inputDataValues.IsCupidCameraBtnPressed
-    			&& !workingDataValues.IsCupidSwitchBtnPressedLastScan)
-    	{
-    		_currentCameraName = RobotMap.CUPID_CAMERA_NAME;
-    		DriverStation.reportError("..Switching to Cupid Camera", false);
-    		
-    		server.switchAutomaticCapture(_currentCameraName);
     	}
     	  
     	// ===========================
