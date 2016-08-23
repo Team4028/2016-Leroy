@@ -7,20 +7,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class RobotMap 
 {	
-	// define constants for the socket connecting to the vision PC
-	public static final int VISION_PC_PORT = 5806;  // Allowed to use 5800-5810
-	public static final int CAMERA_SWAP_PORT = 5807;
-	public static final String VISION_PC_IP_ADDRESS = "10.40.28.78";
-	
-	// define constants for array values of vision data
-	public static final int IS_VALID_DATA_ARRAY_POSITION = 0;
-	public static final int DISTANCE_TO_TARGET_ARRAY_POSITION = 1;
-	public static final int EFFECTIVE_TARGET_WIDTH_ARRAY_POSITION = 2;
-	public static final int DESIRED_SLIDER_POSITION_ARRAY_POSITION = 3;
-	public static final int BATTERY_CHARGE_LEVEL = 4;
-	public static final int DESIRED_TURRET_TURN_IN_DEGREES_ARRAY_POSITION = 5;
-	public static final int IS_VALID_SHOT_ARRAY_POSITION = 6;
-	
 	// ======================================
 	// Constants for CAN Bus Addresses
 	// ======================================
@@ -118,6 +104,7 @@ public class RobotMap
 	public static final int OPERATOR_GAMEPAD_CUPID_CAMERA_BTN = LogitechF310.BLUE_BUTTON_X;
 	public static final int OPERATOR_GAMEPAD_INFEED_ACQUIRE_BTN = LogitechF310.RIGHT_BUMPER;
 	public static final int OPERATOR_GAMEPAD_INFEED_RELEASE_BTN = LogitechF310.LEFT_BUMPER;
+	public static final int OPERATOR_GAMEPAD_SHOOTER_AXIS = LogitechF310.LEFT_Y_AXIS;
 	public static final int OPERATOR_GAMEPAD_WINCH_AXIS = LogitechF310.RIGHT_Y_AXIS;
 	public static final int OPERATOR_GAMEPAD_CAMERA_SWITCH_BTN = LogitechF310.GREEN_BUTTON_A;
 	
@@ -130,7 +117,5 @@ public class RobotMap
 	// ======================================
 	// define constants for usb cameras
 	// ======================================
-	public static final String SHOOTER_CAMERA_NAME = "cam0";
-	public static final String INFEED_CAMERA_NAME = "cam1";
-	public static final String CUPID_CAMERA_NAME = "cam2";	
+	public static final String CAMERA = "cam0";
 }

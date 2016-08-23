@@ -1,13 +1,8 @@
 package org.usfirst.frc.team4028.robot;
 
 import java.util.Date;
-
-import org.usfirst.frc.team4028.robot.Constants.LogitechF310;
 import org.usfirst.frc.team4028.robot.Constants.RobotMap;
-import org.usfirst.frc.team4028.robot.Robot;
-
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /* 
 * This class contains the dynamic data while the robot is running in Auton or Teleop
@@ -91,13 +86,6 @@ public class RobotData
 		FIVE
 	}
 	
-	public enum Camera_Selected
-	{
-		UNDEFINED,
-		SHOOTER_CAMERA,
-		INFEED_CAMERA
-	}
-	
 	public enum Infeed_Tilt_Zero_State
 	{
 		UNDEFINED,
@@ -173,14 +161,6 @@ public class RobotData
 		public double InfeedTiltUpCmd;
 		public double InfeedTiltDownCmd;
 		public double WinchRawCmd;
-		public boolean IsValidData;
-		public double DistanceToTarget;
-		public double EffectiveTargetWidth;
-		public double DesiredSliderPosition;
-		public double DesiredTurretTurnInDegrees;
-		public boolean IsValidShot;
-		
-		public Date LastVisionDataRecievedDT;
 		
 		AutonMode AutonModeRequested;
 		Auton_Puma_Back_Position AutonPumaBackPositionRequested;
@@ -188,8 +168,6 @@ public class RobotData
 		Auton_Drive_Throttle_Percent AutonDriveThrottlePercentRequested;
 		Auton_Cross_Defense_Type AutonCrossDefenseTypeRequested;
 		Auton_Cross_Defense_Position AutonCrossDefensePosition;
-		
-		Camera_Selected CameraSelected;
 		
 		// build a TSV for the header
 		public String BuildTSVHeader()
@@ -221,21 +199,13 @@ public class RobotData
 			sb.append("InputData:InfeedTiltUpCmd" + "\t");
 			sb.append("InputData:InfeedTiltDownCmd" + "\t");
 			sb.append("InputData:WinchRawCmd" + "\t");
-			sb.append("InputData:IsValidData" + "\t");
-			sb.append("InputData:DistanceToTarget" + "\t");
-			sb.append("InputData:EffectiveTargetWidth" + "\t");
-			sb.append("InputData:DesiredSliderPosition" + "\t");
-			sb.append("InputData:DesiredTurretTurnInDegrees" + "\t");
-			sb.append("InputData:IsValidShot" + "\t");
-			sb.append("InputData:LastVisionDataRecievedDT" + "\t");
 			sb.append("InputData:AutonModeRequested" + "\t");
 			sb.append("InputData:AutonPumaBackPositionRequested" + "\t");
 			sb.append("InputData:AutonDriveTimeInSecsRequested" + "\t");
 			sb.append("InputData:AutonDriveThrottlePercentRequested" + "\t");
 			sb.append("InputData:AutonCrossDefenseTypeRequested" + "\t");
 			sb.append("InputData:AutonCrossDefensePosition" + "\t");
-			sb.append("InputData:CameraSelected" + "\t");
-					
+			sb.append("InputData:CameraSelected" + "\t");	
 			return sb.toString();
 		}
 		
@@ -269,21 +239,12 @@ public class RobotData
 			sb.append(InfeedTiltUpCmd + "\t");
 			sb.append(InfeedTiltDownCmd + "\t");
 			sb.append(WinchRawCmd + "\t");
-			sb.append(IsValidData + "\t");
-			sb.append(DistanceToTarget + "\t");
-			sb.append(EffectiveTargetWidth + "\t");
-			sb.append(DesiredSliderPosition + "\t");
-			sb.append(DesiredTurretTurnInDegrees + "\t");
-			sb.append(IsValidShot + "\t");
-			sb.append(LastVisionDataRecievedDT + "\t");
 			sb.append(AutonModeRequested + "\t");
 			sb.append(AutonPumaBackPositionRequested + "\t");
 			sb.append(AutonDriveTimeInSecsRequested + "\t");
 			sb.append(AutonDriveThrottlePercentRequested + "\t");
 			sb.append(AutonCrossDefenseTypeRequested + "\t");
 			sb.append(AutonCrossDefensePosition + "\t");
-			sb.append(CameraSelected + "\t");
-
 			return sb.toString();
 		}
 	}

@@ -75,11 +75,7 @@ public class Robot extends IterativeRobot
 	private DoubleSolenoid _shifterSolenoid;
 	
 	// Camera
-	DynamicCameraServer server;
-	private String _currentCameraName;
-	
-	// Vision Server Client
-	private VisionClient _visionClient;
+	CameraServer server;
 	
 	// Servo
 	private Servo _cupidServo;
@@ -90,7 +86,6 @@ public class Robot extends IterativeRobot
 		
 	// DTO (Data Transfer Object) holding all live Robot Data Values
 	RobotData _robotLiveData;
-	VisionData _visionLiveData;
 	
 	// Wrapper around data logging (if it is enabled)
 	DataLogger _dataLogger;
@@ -224,9 +219,9 @@ public class Robot extends IterativeRobot
     	// Cameras
     	//	the camera name (ex "cam0") can be found through the roborio web interface
     	//===================
-        server = DynamicCameraServer.getInstance();
+        server = CameraServer.getInstance();
         server.setQuality(25);
-        server.startAutomaticCapture("cam0");
+        server.startAutomaticCapture(RobotMap.CAMERA);
     	
         //===================
         // Smart DashBoard User Input
@@ -312,14 +307,6 @@ public class Robot extends IterativeRobot
     		DriverStation.reportError("General Error trying to determine current JAR file", true);
 			//e.printStackTrace();
     	}
-    	    	
-    	//===================
-    	// Vision Server Client
-    	//===================
-    	// Start the imaging thread
-     	_visionLiveData = new VisionData();
-     	_visionClient = VisionClient.getInstance();
-     	_visionClient.startPolling();
     }
         
     // ========================================================================
@@ -631,10 +618,6 @@ public class Robot extends IterativeRobot
     // this auton mode sits still and zeros all axes
     public void autonomousZeroAllAxis()
     {
-    	InputData inputDataValues = _robotLiveData.InputDataValues;
-    	WorkingData workingDataValues = _robotLiveData.WorkingDataValues;
-    	OutputData outputDataValues = _robotLiveData.OutputDataValues;
-    	
     	if(!_isInfeedTiltAxisZeroedYet)
     	{
     		ZeroInfeedTiltAxisReEntrant(_robotLiveData);
@@ -749,13 +732,6 @@ public class Robot extends IterativeRobot
     	else 
     	{
     		outputDataValues.InfeedTiltTargetPositionInRotationsCmd = RobotMap.INFEED_TILT_STORED_POSITION_CMD;
-    	}
-    	
-    	// optionally shut down vision processing
-    	if(_visionClient != null)
-    	{
-    		_visionClient.stopPolling();
-    		DriverStation.reportError("Vision Polling Stopped", false);
     	}
     	
     	// start the camera
@@ -946,7 +922,7 @@ public class Robot extends IterativeRobot
     	}
     	  
     	// ===========================
-    	// Step 2.5: Winch
+    	// Step 2.4: Winch
     	// ===========================
     	if (inputDataValues.WinchRawCmd > 0.05)
     	{
@@ -962,7 +938,7 @@ public class Robot extends IterativeRobot
     	}
     	
     	// ===========================
-    	// Step 2.6: Servo
+    	// Step 2.5: Servo
     	// ===========================
     	if (inputDataValues.IsCupidLoadBtnPressed)
     	{
@@ -1059,9 +1035,6 @@ public class Robot extends IterativeRobot
     	// ==========================
     	// 4.0 publish image from currently selected Camera to the dashboard
     	// ==========================
-    	//VisionData visionData = _visionClient.GetVisionData();
-    	//visionData.DesiredTurretTurnInDegrees
-    	//CameraServer.getInstance().setImage(_cameraFrame);
     	
     	// ==========================
     	// 5.0 Update Dashboard
@@ -1096,7 +1069,6 @@ public class Robot extends IterativeRobot
     	workingDataValues.IsInfeedTiltStoreBtnPressedLastScan = inputDataValues.IsInfeedTiltStoreBtnPressed;
     	workingDataValues.IsInfeedTiltFixedBtnPressedLastScan = inputDataValues.IsInfeedTiltFixedBtnPressed;
     	workingDataValues.IsInfeedAcquireBtnPressedLastScan = inputDataValues.IsInfeedAcquireBtnPressed;
-    	workingDataValues.IsCameraSwitchBtnPressedLastScan =  inputDataValues.IsCameraSwitchBtnPressed;
     	workingDataValues.IsCupidSwitchBtnPressedLastScan = inputDataValues.IsCupidCameraBtnPressed;
     }
     
@@ -1317,19 +1289,6 @@ public class Robot extends IterativeRobot
     	// ==========================	
     	inputDataValues.InfeedTiltEncoderCurrentCount = _infeedTiltMtr.getPosition();
     	inputDataValues.IsInfeedTiltAxisOnUpLimitSwitch = !_infeedTiltMtr.isFwdLimitSwitchClosed();
-    	
-    	// ==========================
-    	// 1.6 get values from the last available scan on the Vision PC
-    	// ==========================
-    	VisionData visionData = _visionClient.GetVisionData();
-    	if(visionData != null)
-    	{
-    		inputDataValues.DesiredTurretTurnInDegrees = visionData.DesiredTurretTurnInDegrees;
-    	}
-    	else
-    	{
-    		inputDataValues.DesiredTurretTurnInDegrees = 0;
-    	}
     }	
     
     /**
@@ -1341,7 +1300,6 @@ public class Robot extends IterativeRobot
     	InputData inputDataValues = robotDataValues.InputDataValues;
     	WorkingData workingDataValues = robotDataValues.WorkingDataValues;
     	OutputData outputDataValues = robotDataValues.OutputDataValues;
-    	VisionData visionData = _visionClient.GetVisionData();
 
 		// Axis Home Routines
 		SmartDashboard.putBoolean("Is Infeed Zeroed", _isInfeedTiltAxisZeroedYet);
